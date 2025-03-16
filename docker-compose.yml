@@ -1,0 +1,21 @@
+version: '3'
+services:
+  web:
+    build: .
+    depends_on:
+      - postgresql
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+  postgresql:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: todo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5433:5432"
+
+

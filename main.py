@@ -1,15 +1,16 @@
-from datetime import datetime
+import json
+from datetime import datetime, timedelta
 
-import jwt
+
 from fastapi import FastAPI, Depends
-from sqlalchemy.sql.functions import current_user
 
 from auth import get_current_user, Token
-from database import create_db, insert_data, register
-from models import WeatherModel, UsersModel, RegisterModel, RegisterModel
+from database import create_db, insert_data, register, get_last
+from models import WeatherModel, RegisterModel
 import requests
 from demo_jwt_auth import router, login, check_token
-from schemas import Users
+
+
 
 api_key = "8d4da25dbe70658aa6589fbc1ce43685"
 
@@ -17,12 +18,20 @@ app = FastAPI()
 app.include_router(router)
 create_db()
 
+
+
+
 @app.get("/{city}")
 async def get_weather(city: str, user = Depends(get_current_user)):
     url=f"https://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
+        last_data = last(city)
+        if last_data:
+            print("LASt")
+            return last_data
         data = response.json()
+        print("New")
         name, temp, description = data["name"], data["main"]["temp"], data["weather"][0]["description"]
         weather = WeatherModel(name=name, temp=temp, description=description, created_at=datetime.now() )
         insert_data(weather)
@@ -42,4 +51,11 @@ async def user_login(user: RegisterModel):
 def check(token: Token):
     print(f"🔍 Received Token: {token}")
     return check_token(token)
+
+@app.get("/last/{city}")
+def last(city:str):
+    latest = get_last(city)
+
+    if latest and (datetime.now() - latest.created_at < timedelta(minutes=5)):
+        return latest
 

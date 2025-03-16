@@ -8,6 +8,7 @@ import bcrypt
 import jwt
 from pydantic import BaseModel
 
+from config import BASE_DIR
 from database import get_user
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token2")
@@ -15,10 +16,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token2")
 
 
 class AuthJWT(BaseModel):
-    private_key_path: Path = Path("/Users/alikhanovyelnur/Desktop/fastApiProject/certs/jwt-private.pem")
-    public_key_path: Path = Path("/Users/alikhanovyelnur/Desktop/fastApiProject/certs/jwt-public.pem")
+    private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
+    public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
-    access_token_expire_minutes: int = 3
+    access_token_expire_minutes: int = 30
 
 class Token(BaseModel):
     access_token: str

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, desc
 from sqlalchemy.orm import sessionmaker
 
 
@@ -26,6 +26,10 @@ def insert_data(weather: WeatherModel):
         )
         session.add(weather_obj)
         session.commit()
+
+def get_last(city: str):
+    with session_conf() as session:
+        return session.query(Weather).filter(Weather.name == city.capitalize()).order_by(desc(Weather.created_at)).first()
 
 def register(username: str, password: str):
     from auth import hash_password
