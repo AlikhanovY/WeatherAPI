@@ -1,13 +1,14 @@
 from datetime import datetime
 
+import jwt
 from fastapi import FastAPI, Depends
 from sqlalchemy.sql.functions import current_user
 
-from auth import get_current_user
+from auth import get_current_user, Token
 from database import create_db, insert_data, register
 from models import WeatherModel, UsersModel, RegisterModel, RegisterModel
 import requests
-from demo_jwt_auth import router, login
+from demo_jwt_auth import router, login, check_token
 from schemas import Users
 
 api_key = "8d4da25dbe70658aa6589fbc1ce43685"
@@ -36,3 +37,9 @@ async def user_register(user: RegisterModel):
 @app.post("/login/")
 async def user_login(user: RegisterModel):
     return login(user.username, user.password)
+
+@app.post("/check/")
+def check(token: Token):
+    print(f"🔍 Received Token: {token}")
+    return check_token(token)
+
